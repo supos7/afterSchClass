@@ -102,12 +102,14 @@ try:
                   t = (classId,cYear,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value,'FP')
                   cur.execute("SELECT stuId,tuition,mcost FROM afterSchStu WHERE classId=? AND year=? AND grade=? AND class=? AND odr=? AND name=? AND code=?", t)
                   r = cur.fetchone()
+                  row[colFirst +4].value = 0
                   if r is not None:
                      if bTuition:
-                        row[colFirst +4].value = row[colFirst +5].value = r[1]
+                        row[colFirst +5].value = r[1]
+                        row[colFirst +6].value = -r[1]
                      else:
-                        row[colFirst +4].value = row[colFirst +5].value = r[2]
-                     row[colFirst +6].value = 0
+                        row[colFirst +5].value = r[2]
+                        row[colFirst +6].value = -r[2]
                      rowIdx = rowIdx + (row[0].row -1,)
 
             # arrange rows
