@@ -1,0 +1,2 @@
+SELECT grade||'학년' AS '학년',class||'반' AS '반',odr AS '번호',name AS '이름',cname AS '방과후 교실',tuition AS '수강료',mcost AS '교재(재료)비' FROM afterschstu WHERE code='FP' ORDER BY grade,class,odr,classId
+SELECT grade AS '학년',class AS '반',odr AS '번호',name AS '이름',cname AS '방과후 교실',tuition AS '수강료',mcost AS '교재(재료)비' FROM afterschstu WHERE code='FP' ORDER BY grade,class,odr,classId
