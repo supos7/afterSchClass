@@ -59,73 +59,96 @@ try:
       logging.info(u'')
       logging.info(u'<<< ' + xlsName + u' >>>')
       wb = load_workbook(filename=xlFile)
-      for sheet in wb:
-         logging.info(u'< ' + sheet.title + u' >')
-         bBreak = False
-         for row in sheet.rows:
-            for cell in row:
-               if cell.value and -1 < cell.value.find(u'학년'):
-                  rowFirst = cell.row +1
-                  colFirst = cell.col_idx -1 # 0 based
-                  bBreak = True
-                  break
-            if bBreak:
+      #for sheet in wb:
+      sheet = wb.active
+      logging.info(u'< ' + sheet.title + u' >')
+      bBreak = False
+      for row in sheet.rows:
+         for cell in row:
+            if cell.value and -1 < cell.value.find(u'학년'):
+               rowFirst = cell.row +1
+               colFirst = cell.col_idx -1 # 0 based
+               bBreak = True
                break
          if bBreak:
-            # class
-            className = xlsName[:xlsName.find(u'(')]
-            t = (className, cYear, cMonth)
-            cur.execute("SELECT id FROM afterSchoolClass WHERE cname = ? AND year = ? AND month = ?", t)
-            r = cur.fetchone()
-            if r is not None:
-               classId = r[0]
-            else:
-               logging.info('The class not found: %s', className)
+            break
+      if bBreak:
+         # class
+         className = xlsName[:xlsName.find(u'(')]
+         t = (className, cYear, cMonth)
+         cur.execute("SELECT id FROM afterSchoolClass WHERE cname = ? AND year = ? AND month = ?", t)
+         r = cur.fetchone()
+         if r is not None:
+            classId = r[0]
+         else:
+            logging.info('The class not found: %s', className)
+            continue
+         bTuition = -1 < xlsName.find(u'강사')
+
+         rowIdx = ()
+         for row in sheet.rows:
+            if row[0].row < rowFirst:
                continue
-            bTuition = -1 < xlsName.find(u'강사')
+            # student
+            if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
+               if type(row[colFirst].value) is unicode:
+                  stuGrade = row[colFirst].value.replace(u'학년',u'').strip()
+               else:
+                  stuGrade = row[colFirst].value
+               if type(row[colFirst +1].value) is unicode:
+                  stuClass = row[colFirst +1].value.replace(u'반',u'').strip()
+               else:
+                  stuClass = row[colFirst +1].value
+               # class of the student
+               t = (classId,cYear,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value,'FP','Y')
+               if bTuition:
+                  cur.execute("SELECT stuId,tuition FROM afterSchStu WHERE classId=? AND year=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND tuit_pay=?", t)
+               else:
+                  cur.execute("SELECT stuId,mcost FROM afterSchStu WHERE classId=? AND year=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND mcos_pay=?", t)
+               r = cur.fetchone()
+               row[colFirst +4].value = 0
+               if r is not None:
+                  if r[1] is not None:
+                     row[colFirst +5].value = -r[1]
+                     rowIdx = rowIdx + (row[0].row -1,)
 
-            rowIdx = ()
-            for row in sheet.rows:
-               if row[0].row < rowFirst:
-                  continue
-               # student
-               if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
-                  if type(row[colFirst].value) is unicode:
-                     stuGrade = row[colFirst].value.replace(u'학년',u'').strip()
-                  else:
-                     stuGrade = row[colFirst].value
-                  if type(row[colFirst +1].value) is unicode:
-                     stuClass = row[colFirst +1].value.replace(u'반',u'').strip()
-                  else:
-                     stuClass = row[colFirst +1].value
-                  # class of the student
-                  t = (classId,cYear,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value,'FP','Y')
-                  if bTuition:
-                     cur.execute("SELECT stuId,tuition FROM afterSchStu WHERE classId=? AND year=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND tuit_pay=?", t)
-                  else:
-                     cur.execute("SELECT stuId,mcost FROM afterSchStu WHERE classId=? AND year=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND mcos_pay=?", t)
-                  r = cur.fetchone()
-                  row[colFirst +4].value = 0
-                  if r is not None:
-                     if r[1] is not None:
-                        row[colFirst +5].value = -r[1]
-                        rowIdx = rowIdx + (row[0].row -1,)
+         # arrange rows
+         #for i in range(0,len(rowIdx)):
+         #   r = sheet.rows[rowFirst -1 + i]
+         #   row = sheet.rows[rowIdx[i]]
+         #   for c, cell in zip(r, row):
+         #      c.value = cell.value
+         # delete residual
+         #for r in range(rowFirst -1 + len(rowIdx), len(sheet.rows)):
+         #   row = sheet.rows[r]
+         #   for cell in row:
+         #      cell.value = None
+         #      cell.border = Border()
+         # copy
+         shTitle = sheet.title
+         sheet.title = 'temp'
+         wsOut = wb.create_sheet()
+         wsOut.title = shTitle
+         rowIdx = (0,) + rowIdx  # add the first row
+         for i in range(0,len(rowIdx)):
+            row = sheet.rows[rowIdx[i]]
+            wsOut.append(range(len(row)))
+            #r = wsOut.rows[rowFirst -1 + i]
+            r = wsOut.rows[i]
+            for c, cell in zip(r, row):
+               c.value = cell.value
+               if cell.has_style:
+                  c.font = cell.font
+                  c.border = cell.border
+                  c.fill = cell.fill
+                  c.number_format = cell.number_format
+                  c.protection = cell.protection
+                  c.alignment = cell.alignment
+         # delete sheet
+         wb.remove_sheet(sheet)         
 
-            # arrange rows
-            for i in range(0,len(rowIdx)):
-               r = sheet.rows[rowFirst -1 + i]
-               row = sheet.rows[rowIdx[i]]
-               for c, cell in zip(r, row):
-                  c.value = cell.value
-            # delete residual
-            for r in range(rowFirst -1 + len(rowIdx), len(sheet.rows)):
-               row = sheet.rows[r]
-               for cell in row:
-                  cell.value = None
-                  cell.border = Border()
-
-         else: # not found '학년'
-            logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')
+      else: # not found '학년'
+         logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')
 
       outPath = os.path.join(outDir, xlFile[len(xlsDir)+1:])
       wb.save(outPath)
