@@ -25,12 +25,15 @@ CREATE TABLE afterSchoolClass (
 
 CREATE TABLE classStu (
    id       integer        PRIMARY KEY AUTOINCREMENT,
-   classId  integer        REFERENCES afterSchoolClass(id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-   stuId    integer        REFERENCES student(id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
+   classId  integer        REFERENCES afterSchoolClass(id) ON DELETE CASCADE NOT NULL,
+   stuId    integer        REFERENCES student(id) ON DELETE CASCADE NOT NULL,
    tuition  integer,
    mcost    integer,
    mfee     integer,
    code     varchar(4),
+   tuit_pay char(2),
+   mcos_pay char(2),
+   mfee_pay char(2),
    UNIQUE(classId,stuId)
 );
 
@@ -53,6 +56,9 @@ CREATE VIEW afterSchStu AS
       classStu.tuition AS tuition,
       classStu.mcost AS mcost,
       classStu.mfee AS mfee,
-      classStu.code AS code
+      classStu.code AS code,
+      classStu.tuit_pay AS tuit_pay,
+      classStu.mcos_pay AS mcos_pay,
+      classStu.mfee_pay AS mfee_pay
    FROM student,afterSchoolClass,classStu
    WHERE classStu.classId = afterSchoolClass.id AND classStu.stuId = student.id;
