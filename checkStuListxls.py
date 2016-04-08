@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-# writeFreePassRefund.py
+# checkStuListxls.py
 
 import logging
 import os.path, shutil
@@ -10,15 +10,15 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 import getopt, sys
 
 # delete the previous log file
-logfile = 'writeFreePassRefund.log'
+logfile = 'checkStuListxls.log'
 
 FORMAT = "%(asctime)-15s  %(levelname)s %(message)s"
 logging.basicConfig(filename=logfile, level=logging.DEBUG, format=FORMAT)
 
-logging.info('<<<<< The log file of writeFreePassRefund.exe >>>>>')
+logging.info('<<<<< The log file of checkStuListxls.exe >>>>>')
 
 def usage():
-   print("Usage: writeFreePassRefund -y year -m month -f xls_folder -o out_folder")
+   print("Usage: checkStuListxls -y year -m month -f xls_folder")
 
 try:
    opts, args = getopt.getopt(sys.argv[1:], "y:m:f:o:")
@@ -27,7 +27,7 @@ except getopt.GetoptError, err:
    print str(err) # will print something like "option -a not recognized"
    usage()
    os._exit(1)
-if 4 != len(opts):
+if 3 != len(opts):
    usage()
    os._exit(1)
 for o, a in opts:
@@ -37,8 +37,6 @@ for o, a in opts:
       cMonth = a
    elif o == "-f":
       xlsDir = a
-   elif o == "-o":
-      outDir = a
    else:
       assert False, "unhandled option"
 
@@ -59,9 +57,8 @@ try:
       logging.info(u'')
       logging.info(u'<<< ' + xlsName + u' >>>')
       wb = load_workbook(filename=xlFile)
-      #for sheet in wb:
       sheet = wb.active
-      logging.info(u'< ' + sheet.title + u' >')
+      #logging.info(u'< ' + sheet.title + u' >')
       bBreak = False
       for row in sheet.rows:
          for cell in row:
@@ -85,7 +82,8 @@ try:
             continue
          bTuition = -1 < xlsName.find(u'강사')
 
-         rowIdx = ()
+         # make a dictionary
+         stuDic = {}
          for row in sheet.rows:
             if row[0].row < rowFirst:
                continue
@@ -99,60 +97,58 @@ try:
                   stuClass = row[colFirst +1].value.replace(u'반',u'').strip()
                else:
                   stuClass = row[colFirst +1].value
-               # class of the student
-               t = (classId,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value,'FP','Y')
-               if bTuition:
-                  cur.execute("SELECT stuId,tuition FROM afterSchStu WHERE classId=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND tuit_pay=?", t)
-               else:
-                  cur.execute("SELECT stuId,mcost FROM afterSchStu WHERE classId=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND mcos_pay=?", t)
-               r = cur.fetchone()
-               row[colFirst +4].value = 0
-               if r is not None:
-                  if r[1] is not None:
-                     row[colFirst +5].value = -r[1]
-                     rowIdx = rowIdx + (row[0].row -1,)
+               
+               key = u'%d%02d%02d%s' % (int(stuGrade),int(stuClass),int(row[colFirst +2].value),row[colFirst +3].value)
+               stuDic[key] = 'OK'
 
-         # arrange rows
-         #for i in range(0,len(rowIdx)):
-         #   r = sheet.rows[rowFirst -1 + i]
-         #   row = sheet.rows[rowIdx[i]]
-         #   for c, cell in zip(r, row):
-         #      c.value = cell.value
-         # delete residual
-         #for r in range(rowFirst -1 + len(rowIdx), len(sheet.rows)):
-         #   row = sheet.rows[r]
-         #   for cell in row:
-         #      cell.value = None
-         #      cell.border = Border()
-         # copy
-         shTitle = sheet.title
-         sheet.title = 'temp'
-         wsOut = wb.create_sheet()
-         wsOut.title = shTitle
-         rowIdx = (0,) + rowIdx  # add the first row
-         for i in range(0,len(rowIdx)):
-            row = sheet.rows[rowIdx[i]]
-            wsOut.append(range(len(row)))
-            #r = wsOut.rows[rowFirst -1 + i]
-            r = wsOut.rows[i]
-            for c, cell in zip(r, row):
-               c.value = cell.value
-               if cell.has_style:
-                  c.font = cell.font
-                  c.border = cell.border
-                  c.fill = cell.fill
-                  c.number_format = cell.number_format
-                  c.protection = cell.protection
-                  c.alignment = cell.alignment
-         # delete sheet
-         wb.remove_sheet(sheet)         
+         dbTitles = [u'방과후 행정사 파일', u'행정실 파일']
+         t = (classId,)
+         if bTuition:
+            cur.execute("SELECT cname,grade,class,odr,name FROM afterSchStu WHERE classId=? AND tuition IS NOT NULL ORDER BY grade,class,odr", t)
+         else:
+            cur.execute("SELECT cname,grade,class,odr,name FROM afterSchStu WHERE classId=? AND mcost IS NOT NULL ORDER BY grade,class,odr", t)
+         bf = True
+         for row in cur:
+            key = u'%d%02d%02d%s' % (int(row[1]),int(row[2]),int(row[3]),row[4])
+            if stuDic.get(key) is None:
+               if bf:
+                  logging.info(dbTitles[0] + u'에는 있고, ' + dbTitles[1] + u'에는 없는 학생')
+                  bf = False
+               logging.info(u'%s: %s학년 %s반 %s번 %s', row[0],row[1],row[2],row[3],row[4])
+
+         # swap
+         dbTitles[0],dbTitles[1] = dbTitles[1],dbTitles[0]
+
+         rowIdx = ()
+         bf = True
+         for row in sheet.rows:
+            if row[0].row < rowFirst:
+               continue
+            # student
+            if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
+               if type(row[colFirst].value) is unicode:
+                  stuGrade = row[colFirst].value.replace(u'학년',u'').strip()
+               else:
+                  stuGrade = row[colFirst].value
+               if type(row[colFirst +1].value) is unicode:
+                  stuClass = row[colFirst +1].value.replace(u'반',u'').strip()
+               else:
+                  stuClass = row[colFirst +1].value
+               
+               t = (classId,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
+               if bTuition:
+                  cur.execute("SELECT stuId,cname FROM afterSchStu WHERE classId=? AND grade=? AND class=? AND odr=? AND name=? AND tuition IS NOT NULL", t)
+               else:
+                  cur.execute("SELECT stuId,cname FROM afterSchStu WHERE classId=? AND grade=? AND class=? AND odr=? AND name=? AND mcost IS NOT NULL", t)
+               r = cur.fetchone()
+               if r is None:
+                  if bf:
+                     logging.info(dbTitles[0] + u'에는 있고, ' + dbTitles[1] + u'에는 없는 학생')
+                     bf = False
+                  logging.info(u'%s: %d학년 %d반 %d번 %s', className,int(stuGrade),int(stuClass),int(row[colFirst +2].value),row[colFirst +3].value)
 
       else: # not found '학년'
          logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')
-
-      outPath = os.path.join(outDir, xlFile[len(xlsDir)+1:])
-      wb.save(outPath)
-      logging.info(u'Saved: ' + outPath.decode('cp949'))
 
    cur.close()
    db.commit()
@@ -162,4 +158,4 @@ except:
    logging.exception('Got an exception on database handler')
    raise
 
-logging.info("Writing refund of free pass classes done.")
+logging.info("Checking student list between the database and xls files done")

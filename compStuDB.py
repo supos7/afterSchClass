@@ -58,7 +58,7 @@ try:
       curCmp = dbCmp.cursor()
 
       logging.info(u'')
-      logging.info(dbTitles[0] + u'에는 있고, ' + dbTitles[1] + u'에는 없음')
+      logging.info(dbTitles[0] + u'에는 있고, ' + dbTitles[1] + u'에는 없는 학생')
       t = (cYear,cMonth)
       cur.execute("SELECT cname,grade,class,odr,name FROM afterSchStu WHERE year=? AND month=? ORDER BY classId,grade,class,odr", t)
       for row in cur:
