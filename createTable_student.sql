@@ -31,6 +31,7 @@ CREATE TABLE classStu (
    mcost    integer,
    mfee     integer,
    code     varchar(4),
+   quit     char(2),
    tuit_pay char(2),
    mcos_pay char(2),
    mfee_pay char(2),
