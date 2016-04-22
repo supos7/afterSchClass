@@ -27,21 +27,22 @@ CREATE TABLE classStu (
    id       integer        PRIMARY KEY AUTOINCREMENT,
    classId  integer        REFERENCES afterSchoolClass(id) ON DELETE CASCADE NOT NULL,
    stuId    integer        REFERENCES student(id) ON DELETE CASCADE NOT NULL,
+   month    integer        NOT NULL,
    tuition  integer,
    mcost    integer,
    mfee     integer,
    code     varchar(4),
-   quit     char(2),
    tuit_pay char(2),
    mcos_pay char(2),
    mfee_pay char(2),
-   UNIQUE(classId,stuId)
+   quitNew  char(2),
+   UNIQUE(classId,stuId,month)
 );
 
 
 CREATE INDEX idx_yearName_stu ON student(year,name);
 CREATE INDEX idx_yearTerm_cls ON afterSchoolClass(year,month);
-CREATE INDEX idx_stuId_clsStu ON classStu(stuId);
+CREATE INDEX idx_stuId_clsStu ON classStu(classId,stuId,month);
 
 
 CREATE VIEW afterSchStu AS
