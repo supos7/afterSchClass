@@ -7,3 +7,10 @@ SELECT DISTINCT grade,class,odr,name FROM afterschstu WHERE code='FP' ORDER BY g
 
 자유수강권자 과목별 전체
 SELECT * FROM afterschstu WHERE code='FP' ORDER BY cname,grade,class,odr
+자유수강권자 (개인별)
+SELECT grade,class,odr,name,cname,cyear,month,tuition,mcost,tuit_pay,mcos_pay,quitNew FROM afterschstu WHERE cyear=2016 AND code='FP' ORDER BY grade,class,odr;
+
+전체 수강자 수강료 및 재료비 합계 (개인별)
+select grade,class,odr,name, sum(tuition+mcost),code from afterschstu where cyear=2016 group by stuid order by grade,class,odr
+자유수강권자 수강료 및 재료비 합계 (개인별)
+select grade,class,odr,name, sum(tuition+mcost),code from afterschstu where cyear=2016 code='FP' group by stuid order by grade,class,odr
