@@ -128,7 +128,7 @@ try:
 
                      # class of the student
                      code = None;
-                     if -1 < row[colFirst +4].value.find(u'자유수강대상자'):
+                     if type(row[colFirst +5].value) is unicode and -1 < row[colFirst +5].value.find(u'자유수강'):
                         code = 'FP'
 
                      t = (classId,stuId,month)
@@ -172,18 +172,20 @@ try:
                               t = ('N',classStuId)
                               cur.execute("UPDATE classStu SET quitNew=? WHERE id=?", t)
                # check students quitted
-               if 1 == i and bPrevMonth:
+               if 0 == i and bPrevMonth:
                   t = (classId,prevMonth)
-                  cur.execute("SELECT id,stuId,code FROM classStu WHERE classId=? AND month=?", t)
+                  cur.execute("SELECT classStuId,stuId FROM afterSchStu WHERE classId=? AND month=? ORDERY BY grade,class,odr", t)
                   for r in cur:
                      t = (classId,r[1],month)
                      cur1.execute("SELECT id FROM classStu WHERE classId=? AND stuId=? AND month=?", t)
                      r1 = cur1.fetchone()
                      if r1 is None:
-                        logging.info('A student quitted class. %s: %s,%s,%s,%s', className,\
-                           row[colFirst].value,row[colFirst +1].value,row[colFirst +2].value,row[colFirst +3].value)
-                        t = ('Q',r1[0])
-                        cur.execute("UPDATE classStu SET quitNew=? WHERE id=?", t)
+                        t = (r[1],)
+                        cur1.execute("SELECT name,grade,class,odr FROM student WHERE id=?", t)
+                        r1 = cur1.fetchone()
+                        logging.info('A student quitted class. %s: %s,%s,%s,%s', className,r1[1],r1[2],r1[3],r1[0])
+                        t = ('Q',r[0])
+                        cur1.execute("UPDATE classStu SET quitNew=? WHERE id=?", t)
 
             else: # not found '학년'
                logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')

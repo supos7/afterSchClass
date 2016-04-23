@@ -54,13 +54,23 @@ CREATE VIEW afterSchStu AS
       student.odr AS odr,
       afterSchoolClass.id AS classId,
       afterSchoolClass.cname AS cname,
-      afterSchoolClass.month AS month,
+      afterSchoolClass.month AS cmonth,
+      classStu.id AS classStuId,
+      classStu.month AS month,
       classStu.tuition AS tuition,
       classStu.mcost AS mcost,
       classStu.mfee AS mfee,
       classStu.code AS code,
       classStu.tuit_pay AS tuit_pay,
       classStu.mcos_pay AS mcos_pay,
-      classStu.mfee_pay AS mfee_pay
+      classStu.mfee_pay AS mfee_pay,
+      classStu.quitNew AS quitNew
    FROM student,afterSchoolClass,classStu
    WHERE classStu.classId = afterSchoolClass.id AND classStu.stuId = student.id;
+
+
+CREATE TRIGGER delete_class_stu_id
+BEFORE DELETE ON student
+FOR EACH ROW BEGIN
+   DELETE FROM classStu WHERE stuId = OLD.id;
+END;
