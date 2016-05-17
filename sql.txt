@@ -11,6 +11,10 @@ SELECT * FROM afterschstu WHERE code='FP' ORDER BY cname,grade,class,odr
 SELECT grade,class,odr,name,cname,cyear,month,tuition,mcost,tuit_pay,mcos_pay,quitNew FROM afterschstu WHERE cyear=2016 AND code='FP' ORDER BY grade,class,odr;
 
 전체 수강자 수강료 및 재료비 합계 (개인별)
-select grade,class,odr,name, sum(tuition+mcost),code from afterschstu where cyear=2016 group by stuid order by grade,class,odr
+SELECT grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear=2016 GROUP BY stuId ORDER BY grade,class,odr
 자유수강권자 수강료 및 재료비 합계 (개인별)
-select grade,class,odr,name, sum(tuition+mcost),code from afterschstu where cyear=2016 code='FP' group by stuid order by grade,class,odr
+SELECT grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear=2016 code='FP' GROUP BY stuId ORDER BY grade,class,odr
+SELECT cyear,grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' GROUP BY stuId ORDER BY grade,class,odr
+
+자유수강권자 추가 환불 (과목별)
+SELECT year,month,grade,class,odr,name,cname,tuition,mcost FROM afterSchStu WHERE code='FPN' AND (month=3 OR month=4) ORDER BY month,classId
