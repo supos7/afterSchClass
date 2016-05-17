@@ -104,17 +104,17 @@ try:
                   stuClass = row[colFirst +1].value
                # class of the student
                t = (classId,month,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value,'FPN')
-               cur.execute("SELECT stuId,tuition,mcost FROM afterSchStu WHERE classId=? AND month=? AND grade=? AND class=? AND odr=? AND name=? AND code=?", t)
+               if bTuition:
+                  cur.execute("SELECT stuId,tuition FROM afterSchStu WHERE classId=? AND month=? AND grade=? AND class=? AND odr=? AND name=? AND code=?", t)
+               else:
+                  cur.execute("SELECT stuId,mcost FROM afterSchStu WHERE classId=? AND month=? AND grade=? AND class=? AND odr=? AND name=? AND code=?", t)
                r = cur.fetchone()
                row[colFirst +4].value = 0
                if r is not None:
-                  if bTuition:
+                  if r[1] is not None and 0 < int(r[1]):
                      row[colFirst +5].value = r[1]
                      row[colFirst +6].value = -r[1]
-                  else:
-                     row[colFirst +5].value = r[2]
-                     row[colFirst +6].value = -r[2]
-                  rowIdx = rowIdx + (row[0].row -1,)
+                     rowIdx = rowIdx + (row[0].row -1,)
 
          # copy
          shTitle = sheet.title
