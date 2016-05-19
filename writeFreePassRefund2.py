@@ -88,41 +88,29 @@ try:
             continue
          bTuition = -1 < xlsName.find(u'강사')
 
-         rowIdx = ()
-         for row in sheet.rows:
-            if row[0].row < rowFirst:
-               continue
-            # student
-            if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
-               if type(row[colFirst].value) is unicode:
-                  stuGrade = row[colFirst].value.replace(u'학년',u'').strip()
-               else:
-                  stuGrade = row[colFirst].value
-               if type(row[colFirst +1].value) is unicode:
-                  stuClass = row[colFirst +1].value.replace(u'반',u'').strip()
-               else:
-                  stuClass = row[colFirst +1].value
-               # class of the student
-               t = (classId,month,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value,'FPN','Y')
-               if bTuition:
-                  cur.execute("SELECT stuId,tuition FROM afterSchStu WHERE classId=? AND month=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND tuit_pay=?", t)
-               else:
-                  cur.execute("SELECT stuId,mcost FROM afterSchStu WHERE classId=? AND month=? AND grade=? AND class=? AND odr=? AND name=? AND code=? AND mcos_pay=?", t)
-               r = cur.fetchone()
-               row[colFirst +4].value = 0
-               if r is not None:
-                  if r[1] is not None and 0 < int(r[1]):
-                     row[colFirst +5].value = -r[1]
-                     rowIdx = rowIdx + (row[0].row -1,)
+         t = ('FPN',month,classId)
+         if bTuition:
+            cur.execute("SELECT grade,class,odr,name,tuition FROM afterSchStu WHERE code=? AND month=? AND classId=? AND 0 < tuition ORDER BY grade,class,odr", t)
+         else: # mcost
+            cur.execute("SELECT grade,class,odr,name,mcost FROM afterSchStu WHERE code=? AND month=? AND classId=? AND 0 < mcost ORDER BY grade,class,odr", t)
+         iRow = 1
+         for r in cur:
+            row = sheet.rows[iRow]
+            row[colFirst].value = str(r[0]) + u'학년'
+            row[colFirst +1].value = str(r[1]) + u'반'
+            row[colFirst +2].value = str(r[2])
+            row[colFirst +3].value = r[3]
+            row[colFirst +4].value = 0
+            row[colFirst +5].value = -r[4]
+            iRow += 1
 
          # copy
          shTitle = sheet.title
          sheet.title = 'temp'
          wsOut = wb.create_sheet()
          wsOut.title = shTitle
-         rowIdx = (0,) + rowIdx  # add the first row
-         for i in range(0,len(rowIdx)):
-            row = sheet.rows[rowIdx[i]]
+         for i in range(0,iRow):
+            row = sheet.rows[i]
             wsOut.append(range(len(row)))
             r = wsOut.rows[i]
             for c, cell in zip(r, row):

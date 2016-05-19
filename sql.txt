@@ -17,4 +17,4 @@ SELECT grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear
 SELECT cyear,grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' GROUP BY stuId ORDER BY grade,class,odr
 
 자유수강권자 추가 환불 (과목별)
-SELECT year,month,grade,class,odr,name,cname,tuition,mcost FROM afterSchStu WHERE code='FPN' AND (month=3 OR month=4) ORDER BY month,classId
+SELECT year,month,grade,class,odr,name,cname,tuition,mcost,quitNew FROM afterSchStu WHERE code='FPN' AND (month=3 OR month=4) ORDER BY month,classId,grade,class,odr
