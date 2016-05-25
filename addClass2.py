@@ -17,7 +17,7 @@ logging.basicConfig(filename=logfile, level=logging.DEBUG, format=FORMAT)
 logging.info('<<<<< The log file of addClass2.exe >>>>>')
 
 def usage():
-   print("Usage: addClass2 -y year -m month -t tuition_folder -c mcost_folder")
+   print("Usage: addClass2 -y year -m cMonth -t tuition_folder -c mcost_folder")
 
 try:
    opts, args = getopt.getopt(sys.argv[1:], "y:m:t:c:")
@@ -65,8 +65,9 @@ try:
       bPrevMonth = int(cMonth) != month
       if bPrevMonth:
          prevMonth = month -1
-         if 0 == month:
-            month = 12
+         if 0 == prevMonth:
+            prevMonth = 12
+         logging.debug('Month: %d, prev. month: %d', month, prevMonth)
 
       xlsPath = os.path.join(folders[i],'*.xlsx')
       xlList = glob.glob(xlsPath)
@@ -163,7 +164,7 @@ try:
                            cur.execute("SELECT id,tuition,mcost,code FROM classStu WHERE classId=? AND stuId=? AND month=?", t)
                            r = cur.fetchone()
                            if r is not None:
-                              if code != r[3]:
+                              if not(code == r[3] or (r[3] == 'FPQ' and code is None) or (r[3] == 'FPN' and code == 'FP')):
                                  logging.warn('Please check the student as a free pass. not the same with previous month: %s,%s,%s,%s, this month: %s, prev. month: %s', \
                                     row[colFirst].value,row[colFirst +1].value,row[colFirst +2].value,row[colFirst +3].value, code, r[3])
                            else: # new student of class
@@ -174,7 +175,7 @@ try:
                # check students quitted
                if 0 == i and bPrevMonth:
                   t = (classId,prevMonth)
-                  cur.execute("SELECT classStuId,stuId FROM afterSchStu WHERE classId=? AND month=? ORDERY BY grade,class,odr", t)
+                  cur.execute("SELECT classStuId,stuId FROM afterSchStu WHERE classId=? AND month=? ORDER BY grade,class,odr", t)
                   for r in cur:
                      t = (classId,r[1],month)
                      cur1.execute("SELECT id FROM classStu WHERE classId=? AND stuId=? AND month=?", t)
