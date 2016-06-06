@@ -109,24 +109,29 @@ try:
                      else:
                         stuClass = row[colFirst +1].value
                      t = (cYear,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
-                     cur.execute("SELECT id FROM student WHERE year=? AND grade=? AND class=? AND odr=? AND name=?", t)
+                     cur.execute("SELECT id,code FROM student WHERE year=? AND grade=? AND class=? AND odr=? AND name=?", t)
                      r = cur.fetchone()
                      if r is not None:
                         stuId = r[0]
-                     else:
-                        stuId = None
+                        code = r[1]
+                        res = False
+                        # class of the student
+                        if bPrevMonth:
+                           t = (stuId,prevMonth)
+                           cur.execute("SELECT id,code FROM classStu WHERE stuId=? AND month=?", t)
+                           r = cur.fetchone()
+                           if r is not None:
+                              if r[1] == 'FPN' or r[1] == 'FP':
+                                 res = True
+                        if not res:
+                           if code == 'FPNJ':
+                              res = True
 
-                     # class of the student
-                     if bPrevMonth and stuId is not None:
-                        t = (stuId,prevMonth)
-                        cur.execute("SELECT id,code FROM classStu WHERE stuId=? AND month=?", t)
-                        r = cur.fetchone()
-                        if r is not None:
-                           if r[1] == 'FPN' or r[1] == 'FP':
-                              row[colFirst +5].value = '자유수강대상자'
-                              cnt += 1
-                              logging.info('A student tagged as free pass: %s,%s,%s,%s', \
-                                 row[colFirst].value,row[colFirst +1].value,row[colFirst +2].value,row[colFirst +3].value)
+                        if res:
+                           row[colFirst +5].value = '자유수강대상자'
+                           cnt += 1
+                           logging.info('A student tagged as free pass: %s,%s,%s,%s,%s', \
+                              row[colFirst].value,row[colFirst +1].value,row[colFirst +2].value,row[colFirst +3].value,code)
 
             else: # not found '학년'
                logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')
