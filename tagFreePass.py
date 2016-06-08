@@ -60,15 +60,15 @@ try:
          logging.error('Month not found from the folder name')
          #exit(1)
          break
-      ib = folder.rfind(u' ') +1
-      month = int(folder[ib:ie])
-      #bPrevMonth = int(cMonth) != month
-      bPrevMonth = True
-      if bPrevMonth:
-         prevMonth = month -1
-         if 0 == prevMonth:
-            prevMonth = 12
-         logging.debug('Month: %d, prev. month: %d', month, prevMonth)         
+      #ib = folder.rfind(u' ') +1
+      #month = int(folder[ib:ie])
+      ##bPrevMonth = int(cMonth) != month
+      #bPrevMonth = True
+      #if bPrevMonth:
+      #   prevMonth = month -1
+      #   if 0 == prevMonth:
+      #      prevMonth = 12
+      #   logging.debug('Month: %d, prev. month: %d', month, prevMonth)         
 
       xlsPath = os.path.join(folders[i],'*.xlsx')
       xlList = glob.glob(xlsPath)
@@ -114,20 +114,19 @@ try:
                      if r is not None:
                         stuId = r[0]
                         code = r[1]
-                        res = False
+                        #res = False
                         # class of the student
-                        if bPrevMonth:
-                           t = (stuId,prevMonth)
-                           cur.execute("SELECT id,code FROM classStu WHERE stuId=? AND month=?", t)
-                           r = cur.fetchone()
-                           if r is not None:
-                              if r[1] == 'FPN' or r[1] == 'FP':
-                                 res = True
-                        if not res:
-                           if code == 'FPNJ':
-                              res = True
-
-                        if res:
+                        #if bPrevMonth:
+                        #   t = (stuId,prevMonth)
+                        #   cur.execute("SELECT id,code FROM classStu WHERE stuId=? AND month=?", t)
+                        #   r = cur.fetchone()
+                        #   if r is not None:
+                        #      if r[1] == 'FPN' or r[1] == 'FP':
+                        #         res = True
+                        #if not res:
+                        if 'FP' == code or 'FPN' == code or 'FPNJ' == code:
+                        #   res = True
+                        #if res:
                            row[colFirst +5].value = '자유수강대상자'
                            cnt += 1
                            logging.info('A student tagged as free pass: %s,%s,%s,%s,%s', \
