@@ -14,7 +14,7 @@ CREATE TABLE student (
 
 CREATE TABLE afterSchoolClass (
    id       integer        PRIMARY KEY AUTOINCREMENT,
-   cname    varchar(128)   NOT NULL UNIQUE,
+   cname    varchar(128)   NOT NULL,
    year     smallint       NOT NULL,
    month    smallint       NOT NULL,
    tuition  integer,
@@ -52,6 +52,7 @@ CREATE VIEW afterSchStu AS
       student.grade AS grade,
       student.class AS class,
       student.odr AS odr,
+      student.code AS scode,
       afterSchoolClass.id AS classId,
       afterSchoolClass.cname AS cname,
       afterSchoolClass.year AS cyear,

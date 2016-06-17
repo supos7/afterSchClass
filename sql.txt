@@ -13,12 +13,15 @@ SELECT grade,class,odr,name,cname,cyear,month,tuition,mcost,tuit_pay,mcos_pay,qu
 전체 수강자 수강료 및 재료비 합계 (개인별)
 SELECT grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear=2016 GROUP BY stuId ORDER BY grade,class,odr
 자유수강권자 수강료 및 재료비 합계 (개인별)
-SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' GROUP BY stuId ORDER BY grade,class,odr
-SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' GROUP BY stuId ORDER BY tmSum DESC
-SELECT cyear,grade,class,odr,name,SUM(tuition+mcost),code FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' AND month=4 GROUP BY stuId ORDER BY grade,class,odr
+SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum,scode FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' GROUP BY stuId ORDER BY grade,class,odr
+SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum,scode FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' GROUP BY stuId ORDER BY tmSum DESC
+SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum,scode FROM afterSchStu WHERE cyear=2016 AND code like 'FP%' AND month=4 GROUP BY stuId ORDER BY grade,class,odr
 
 자유수강권자 추가 환불 (과목별)
 SELECT year,month,grade,class,odr,name,cname,tuition,mcost,quitNew FROM afterSchStu WHERE cyear=2016 AND code='FPN' AND (month=3 OR month=4) ORDER BY month,classId,grade,class,odr
 
 자유수강권자 (3~5월에는 있고 4월에는 없는)
 SELECT DISTINCT grade,class,odr,name FROM afterschstu WHERE cyear=2016 AND code like 'FP%' AND stuId IN (SELECT stuId FROM classstu WHERE month=3 OR month=5) AND stuId NOT IN (SELECT stuId FROM classstu WHERE month=4) ORDER BY grade,class,odr;
+
+방과후 미참여 자유수강권자
+SELECT * FROM student WHERE id NOT IN (SELECT stuId FROM classStu);

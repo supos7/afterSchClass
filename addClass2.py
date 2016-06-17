@@ -116,10 +116,11 @@ try:
                      else:
                         stuClass = row[colFirst +1].value
                      t = (cYear,stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
-                     cur.execute("SELECT id FROM student WHERE year=? AND grade=? AND class=? AND odr=? AND name=?", t)
+                     cur.execute("SELECT id,code FROM student WHERE year=? AND grade=? AND class=? AND odr=? AND name=?", t)
                      r = cur.fetchone()
                      if r is not None:
                         stuId = r[0]
+                        sCode = r[1]
                      else:
                         t = (row[colFirst +3].value, cYear, stuGrade, stuClass, row[colFirst +2].value)
                         #logging.debug('Try to insert a student: %s,%s,%s,%s,%s', cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)

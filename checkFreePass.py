@@ -85,16 +85,16 @@ try:
                if r is not None: # update code
                   code = r[1]
                   if code == 'FP' or code == 'FPN':
-                     logging.info('The student already joined: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
-                  elif code == 'FPNJ':
-                     logging.info('The student not joined: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
+                     logging.info('The student found as a free pass: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
+                  #elif code == 'FPNJ':
+                  #   logging.info('The student not joined: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
                   else:
-                     logging.warn('Check the student: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
+                     logging.warn('Check if the student is a free pass: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
                else: # student not found
-                  t = (row[colFirst +3].value, cYear, stuGrade, stuClass, row[colFirst +2].value,'FPNJ')
+                  t = (row[colFirst +3].value, cYear, stuGrade, stuClass, row[colFirst +2].value,'FP')
                   cur.execute("INSERT INTO student(name,year,grade,class,odr,code) values(?,?,?,?,?,?)", t)
                   stuId = cur.lastrowid
-                  logging.info('A student not joined inserted: %s,%s,%s,%s,%s,%s', stuId, cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)
+                  logging.info('A student inserted as a free pass: %s,%s,%s,%s,%s,%s', stuId, cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)
 
       else: # not found '학년'
          logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')

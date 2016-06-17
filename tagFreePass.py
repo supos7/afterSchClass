@@ -104,7 +104,7 @@ try:
                      r = cur.fetchone()
                      if r is not None:
                         code = r[1]
-                        if 'FP' == code or 'FPN' == code or 'FPNJ' == code:
+                        if 'FP' == code or 'FPN' == code:
                            row[colFirst +5].value = '자유수강대상자'
                            cnt += 1
                            logging.info('A student tagged as free pass: %s,%s,%s,%s,%s', \
