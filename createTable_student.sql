@@ -71,8 +71,14 @@ CREATE VIEW afterSchStu AS
    WHERE classStu.classId = afterSchoolClass.id AND classStu.stuId = student.id;
 
 
-CREATE TRIGGER delete_class_stu_id
+CREATE TRIGGER delete_classStu_stu_id
 BEFORE DELETE ON student
 FOR EACH ROW BEGIN
    DELETE FROM classStu WHERE stuId = OLD.id;
+END;
+
+CREATE TRIGGER delete_classStu_class_id
+BEFORE DELETE ON afterSchoolClass
+FOR EACH ROW BEGIN
+   DELETE FROM classStu WHERE classId = OLD.id;
 END;
