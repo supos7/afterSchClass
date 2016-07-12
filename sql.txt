@@ -25,3 +25,6 @@ SELECT DISTINCT grade,class,odr,name FROM afterschstu WHERE cyear=2016 AND code 
 
 방과후 미참여 자유수강권자
 SELECT * FROM student WHERE id NOT IN (SELECT stuId FROM classStu);
+
+자유수강권자 수강료 및 재료비 (개인별)
+SELECT grade,class,odr,name,cyear,month,cname,tuition,mcost FROM afterschStu WHERE cyear=2016 AND code LIKE 'FP%' ORDER BY grade,class,odr,month,cname
