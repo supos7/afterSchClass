@@ -31,3 +31,8 @@ SELECT grade,class,odr,name,cyear,month,cname,tuition,mcost FROM afterschStu WHE
 
 Dump
 sqlite3 asClass.db .dump > asClass.dump.sql
+
+자유수강권자 종료
+SELECT * FROM student WHERE year=2016 AND grade=2 AND class=5 AND odr=26 AND name='허은제';
+SELECT * FROM classStu WHERE stuId = (SELECT id FROM student WHERE year=2016 AND grade=2 AND class=5 AND odr=26 AND name='허은제');
+UPDATE classStu SET code='FPQ' WHERE stuId = (SELECT id FROM student WHERE year=2016 AND grade=2 AND class=5 AND odr=26 AND name='허은제');
