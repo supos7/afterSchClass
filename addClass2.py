@@ -51,6 +51,7 @@ try:
    db = sqlite3.connect(dbName)
    cur = db.cursor()
    cur1 = db.cursor()
+   doCommit = True
 
    folders = (tuitionDir,mcostDir)
    for i in range(0,2):
@@ -122,11 +123,26 @@ try:
                         stuId = r[0]
                         sCode = r[1]
                      else:
-                        t = (row[colFirst +3].value, cYear, stuGrade, stuClass, row[colFirst +2].value)
-                        #logging.debug('Try to insert a student: %s,%s,%s,%s,%s', cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)
-                        cur.execute("INSERT INTO student(name,year,grade,class,odr) values(?,?,?,?,?)", t)
-                        stuId = cur.lastrowid
-                        logging.info('A student inserted: %s,%s,%s,%s,%s,%s', stuId,cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)
+                        if 1 == i:
+                           logging.warn('The student should have been already inserted: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
+                           doCommit = False
+                           continue
+
+                        # check unique constraint
+                        t = (cYear,stuGrade,stuClass,row[colFirst +2].value)
+                        cur.execute("SELECT name FROM student WHERE year=? AND grade=? AND class=? AND odr=?", t)
+                        r = cur.fetchone()
+                        if r is None:
+                           # insert a new student
+                           t = (row[colFirst +3].value, cYear, stuGrade, stuClass, row[colFirst +2].value)
+                           cur.execute("INSERT INTO student(name,year,grade,class,odr) values(?,?,?,?,?)", t)
+                           stuId = cur.lastrowid
+                           logging.info('A student inserted: %s,%s,%s,%s,%s,%s', stuId,cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)
+                        else:
+                           logging.debug('Try to insert a student: %s,%s,%s,%s,%s', cYear, stuGrade, stuClass, row[colFirst +2].value, row[colFirst +3].value)
+                           logging.warn('The student already exists: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,r[0])
+                           doCommit = False
+                           continue
 
                      # class of the student
                      code = None;
@@ -194,7 +210,10 @@ try:
 
    cur.close()
    cur1.close()
-   db.commit()
+   if doCommit:
+      db.commit()
+   else:
+      logging.warn('Rollbacked becuase of an error')
    db.close()
 
 except:
