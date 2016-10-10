@@ -103,7 +103,9 @@ try:
                   logging.info('A class inserted: %s,%s,%s,%s', classId,className,cYear,cMonth)
 
                for row in sheet.rows:
-                  if row[0].row < rowFirst:
+                  if row[colFirst].row < rowFirst:
+                     logging.debug('this line skipped: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                        row[colFirst +3].value, row[colFirst +4].value)
                      continue
                   # student
                   if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and \
@@ -189,6 +191,10 @@ try:
                                  row[colFirst].value,row[colFirst +1].value,row[colFirst +2].value,row[colFirst +3].value)
                               t = ('N',classStuId)
                               cur.execute("UPDATE classStu SET quitNew=? WHERE id=?", t)
+                  else:
+                     logging.debug('Invalid data: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                        row[colFirst +3].value, row[colFirst +4].value)
+
                # check students quitted
                if 0 == i and bPrevMonth:
                   t = (classId,prevMonth)

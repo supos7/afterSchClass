@@ -64,10 +64,12 @@ try:
                break
          if bBreak:
             break
-      if bBreak:
 
+      if bBreak:
          for row in sheet.rows:
-            if row[0].row < rowFirst:
+            if row[colFirst].row < rowFirst:
+               logging.debug('this line skipped: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                  row[colFirst +3].value, row[colFirst +4].value)
                continue
             # student
             if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
@@ -96,7 +98,9 @@ try:
                      logging.info('The class joined: %s,%s,%s', r[0],r[1],r[2])
                else: # student not found
                   logging.info('The student not joined: %s,%s,%s,%s', stuGrade,stuClass,row[colFirst +2].value,row[colFirst +3].value)
-
+            else:
+               logging.debug('Invalid data: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                  row[colFirst +3].value, row[colFirst +4].value)
       else: # not found '학년'
          logging.info(u'Worksheet \'' + sheet.title + u'\' may not have any student.')
 

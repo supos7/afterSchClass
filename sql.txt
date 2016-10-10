@@ -20,6 +20,12 @@ SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum,scode FROM afterSc
 자유수강권자 수강료 및 재료비 (개인별)
 SELECT grade,class,odr,name,cyear,month,cname,tuition,mcost FROM afterschStu WHERE cyear=2016 AND code LIKE 'FP%' ORDER BY grade,class,odr,month,cname
 
+자유수강권자 수강료 및 재료비 합계 (개인별, 기간설정)
+SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum,scode FROM afterSchStu WHERE cyear=2016 AND 3 <= month AND month <= 9 AND code like 'FP%' GROUP BY stuId ORDER BY grade,class,odr
+SELECT cyear,grade,class,odr,name,SUM(tuition+mcost) AS tmSum,scode FROM afterSchStu WHERE cyear=2016 AND 3 <= month AND month <= 9 AND code like 'FP%' GROUP BY stuId ORDER BY tmSum DESC
+자유수강권자 수강료 및 재료비 (개인별, 기간설정)
+SELECT grade,class,odr,name,cyear,month,cname,tuition,mcost FROM afterschStu WHERE cyear=2016 AND 3 <= month AND month <= 9 AND code LIKE 'FP%' ORDER BY grade,class,odr,month,cname
+
 자유수강권자 추가 환불 (과목별)
 SELECT year,month,grade,class,odr,name,cname,tuition,mcost,quitNew FROM afterSchStu WHERE cyear=2016 AND code='FPN' AND (month=3 OR month=4) ORDER BY month,classId,grade,class,odr
 

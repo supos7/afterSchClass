@@ -86,7 +86,9 @@ try:
                   logging.info('A class inserted: %s,%s,%s,%s', classId,className,cYear,cMonth)
 
                for row in sheet.rows:
-                  if row[0].row < rowFirst:
+                  if row[colFirst].row < rowFirst:
+                     logging.debug('this line skipped: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                        row[colFirst +3].value, row[colFirst +4].value)
                      continue
                   # student
                   if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and \
@@ -134,6 +136,9 @@ try:
                            logging.info('A student of class inserted: %s,%s,%s,%s,%s', classStuId,classId,stuId,row[colFirst +4].value,None)
                         elif 1 == i: # mcost
                            logging.info('A student of class inserted: %s,%s,%s,%s,%s', classStuId,classId,stuId,None,row[colFirst +4].value)
+                  else:
+                     logging.debug('Invalid data: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                        row[colFirst +3].value, row[colFirst +4].value)
 
 
             else: # not found '학년'

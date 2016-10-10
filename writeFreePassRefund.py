@@ -87,7 +87,9 @@ try:
 
          rowIdx = ()
          for row in sheet.rows:
-            if row[0].row < rowFirst:
+            if row[colFirst].row < rowFirst:
+               logging.debug('this line skipped: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                  row[colFirst +3].value, row[colFirst +4].value)
                continue
             # student
             if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
@@ -111,6 +113,9 @@ try:
                   if r[1] is not None:
                      row[colFirst +5].value = -r[1]
                      rowIdx = rowIdx + (row[0].row -1,)
+            else:
+               logging.debug('Invalid data: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                  row[colFirst +3].value, row[colFirst +4].value)
 
          # arrange rows
          #for i in range(0,len(rowIdx)):

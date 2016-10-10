@@ -85,7 +85,9 @@ try:
          # make a dictionary
          stuDic = {}
          for row in sheet.rows:
-            if row[0].row < rowFirst:
+            if row[colFirst].row < rowFirst:
+               logging.debug('this line skipped: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                  row[colFirst +3].value, row[colFirst +4].value)
                continue
             # student
             if row[colFirst].value and row[colFirst +1].value and row[colFirst +2].value and row[colFirst +3].value:
@@ -100,6 +102,9 @@ try:
                
                key = u'%d%02d%02d%s' % (int(stuGrade),int(stuClass),int(row[colFirst +2].value),row[colFirst +3].value)
                stuDic[key] = 'OK'
+            else:
+               logging.debug('Invalid data: %s,%s,%s,%s,%s', row[colFirst].value, row[colFirst +1].value, row[colFirst +2].value, \
+                  row[colFirst +3].value, row[colFirst +4].value)
 
          dbTitles = [u'방과후 행정사 파일', u'행정실 파일']
          t = (classId,)
