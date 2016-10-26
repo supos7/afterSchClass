@@ -36,7 +36,7 @@ CREATE TABLE classStu (
    mcos_pay char(2),
    mfee_pay char(2),
    quitNew  char(2),
-   UNIQUE(classId,stuId,month)
+   UNIQUE(classId,stuId,month,code)
 );
 
 
