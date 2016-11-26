@@ -44,3 +44,5 @@ UPDATE student SET code='FPQ' where year=2016 AND grade=2 AND class=5 AND odr=26
 SELECT * FROM classStu WHERE stuId=(SELECT id FROM student WHERE year=2016 AND grade=2 AND class=5 AND odr=26 AND name='허은제');
 SELECT * FROM afterSchStu WHERE stuId=(SELECT id FROM student WHERE year=2016 AND grade=2 AND class=5 AND odr=26 AND name='허은제') order by month;
 UPDATE classStu SET code='FPQ' WHERE stuId = (SELECT id FROM student WHERE year=2016 AND grade=2 AND class=5 AND odr=26 AND name='허은제');
+UPDATE classStu SET code='' WHERE id=15137;
+INSERT INTO classStu(classId,stuId,month,tuition,mcost,code) values(?,?,?,?,?,?);
